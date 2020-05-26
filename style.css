@@ -46,9 +46,26 @@ textarea {
     text-align: center;
 }
 
+hr {
+    border: 0;
+    height: 1px;
+    background-image: linear-gradient(to right, rgba(33, 37, 41, 0), rgba(255, 255, 255, 0.3), rgba(33, 37, 41, 0));
+}
+
+#clearAll {
+    cursor: pointer;
+}
+
 /*
     Edit Form Styles
  */
 #div-edit.hide {
     display: none;
+}
+
+/*
+    Toast styles
+*/
+.toast-body {
+    font-size: 1rem;
 }

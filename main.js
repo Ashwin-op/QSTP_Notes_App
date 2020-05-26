@@ -1,25 +1,36 @@
 $(document).ready(function () {
-    let notesArray = [], count = 0;
+    // Getting content from Local storage
+    let notesArray, count;
 
     // Refreshing the list
-    function listRefresh() {
+    function notesListRefresh() {
+        if (localStorage.getItem('notes') != null) {
+                notesArray = JSON.parse(localStorage.getItem('notes'));
+                count = notesArray.length;
+        } else {
+            notesArray = [];
+            count = 0;
+        }
+
         $("#list").empty();
 
         for (let i = 0; i < notesArray.length; i++) {
-            let name = notesArray[i].name, date = notesArray[i].date, dateString, month, element;
+            let name = notesArray[i].name, date = new Date(notesArray[i].date);
 
-            month = date.getMonth() + 1;
-            dateString = date.getDate() + "/" + month + "/" + date.getFullYear();
+            let month = date.getMonth() + 1;
+            let dateString = date.getDate() + "/" + month + "/" + date.getFullYear();
 
-            element = $('<li data-id="' + notesArray[i].id + '" data-name="' + notesArray[i].name + '">');
+            let element = $('<li data-id="' + notesArray[i].id + '" data-name="' + notesArray[i].name + '">');
 
             element.append($('<div class="div-name">').text(name));
             element.append($('<div class="div-date">').text(dateString));
 
             $("#list").append(element);
-            $("#list").append("<hr class='m-0 bg-light'>");
+            $("#list").append("<hr class='m-0'>");
         }
     }
+
+    notesListRefresh();
 
     // Clicking on any item in the shows the edit option
     $("#list").on("click", "li", function () {
@@ -53,8 +64,9 @@ $(document).ready(function () {
                 date: date,
             });
 
-            $('.toast-body')[0].innerHTML = 'Note added successfully!';
-            $('.toast').toast('show');
+            localStorage.setItem('notes', JSON.stringify(notesArray))
+
+            showToast('Note added successfully!')
         }
 
         count++;
@@ -62,7 +74,7 @@ $(document).ready(function () {
         $("#content").val("");
         $("#name").val("");
 
-        listRefresh();
+        notesListRefresh();
     });
 
     // Saving notes
@@ -77,10 +89,11 @@ $(document).ready(function () {
             }
         }
 
-        $('.toast-body')[0].innerHTML = 'Note saved successfully!';
-        $('.toast').toast('show');
+        localStorage.setItem('notes', JSON.stringify(notesArray))
 
-        listRefresh();
+        showToast('Note saved successfully!');
+
+        notesListRefresh();
 
         $('#list li[data-id="' + id + '"]').addClass("selected");
     });
@@ -91,7 +104,7 @@ $(document).ready(function () {
         $("#list li.selected").removeClass("selected");
     });
 
-    // Removing notes
+    // Removing a note
     $("#remove").on("click", function () {
         let id = $("#list li.selected").data("id");
 
@@ -104,12 +117,30 @@ $(document).ready(function () {
                 }
             }
 
-            $('.toast-body')[0].innerHTML = 'Note removed successfully!';
-            $('.toast').toast('show');
+            localStorage.setItem('notes', JSON.stringify(notesArray))
 
-            listRefresh();
+            showToast('Note removed successfully!');
+
+            notesListRefresh();
 
             $("#div-edit").addClass("hide");
         }
     });
+
+    // Removing all notes
+    $("#clearAll").on("click", function() {
+        localStorage.clear();
+
+        notesListRefresh();
+
+        showToast('Local Storage cleared successfully!');
+
+        $("#div-edit").addClass("hide");
+    });
+
+    // Function to show toast
+    function showToast(message) {
+        $('.toast-body')[0].innerHTML = message;
+        $('.toast').toast('show');
+    }
 });
